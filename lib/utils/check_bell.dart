@@ -1,8 +1,6 @@
-import 'package:flutter/widgets.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mektep_rings/ui/widgets/app_icons.dart';
+import 'package:mektep_rings/utils/bell_player.dart';
 import '../providers/audio_providers.dart';
-import 'bell_player.dart';
 
 Future<void> checkBell(
   List<List<String>> schedule,
@@ -17,10 +15,11 @@ Future<void> checkBell(
 
   final lastDay = ref.read(playedTimesProvider.notifier).state['lastDay'];
   if (lastDay != null && lastDay != now.day) {
+    print('Күн өзгөрдү: $lastDay -> ${now.day}, playedTimes тазаланууда');
     ref.read(playedTimesProvider.notifier).state = {'lastDay': now.day};
-    ref.read(currentPlayingProvider.notifier).state = null;
     playedTimes.clear();
   } else if (lastDay == null) {
+    print('lastDay орнотулууда: ${now.day}');
     ref.read(playedTimesProvider.notifier).state['lastDay'] = now.day;
   }
 
@@ -35,29 +34,15 @@ Future<void> checkBell(
     String entryAudio = schedule[rowIndex][2];
     String exitAudio = schedule[rowIndex][4];
 
-    if (!entryAudio.startsWith('audio/')) {}
-    if (!exitAudio.startsWith('audio/')) {}
-
-    void updateIcon(int columnIndex, dynamic value) {
-      if (ref.read(provider).isNotEmpty) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          final currentPlaying = ref.read(currentPlayingProvider);
-          if (value == AppIcons.notes) {
-            ref.read(currentPlayingProvider.notifier).state = {
-              'row': rowIndex,
-              'col': columnIndex,
-              'type': providerType,
-            };
-          } else if (value == AppIcons.rectangle) {
-            if (currentPlaying == null ||
-                (currentPlaying['row'] != rowIndex ||
-                    currentPlaying['col'] != columnIndex ||
-                    currentPlaying['type'] != providerType)) {
-              ref.read(currentPlayingProvider.notifier).state = null;
-            }
-          }
-        });
-      }
+    if (!entryAudio.startsWith('audio/')) {
+      print(
+        'Эскертүү: Кирүү аудиосу туура эмес: $entryAudio (Сабак $lessonNumber)',
+      );
+    }
+    if (!exitAudio.startsWith('audio/')) {
+      print(
+        'Эскертүү: Чыгуу аудиосу туура эмес: $exitAudio (Сабак $lessonNumber)',
+      );
     }
 
     final entryKey =
@@ -67,53 +52,52 @@ Future<void> checkBell(
 
     if (entryTime == currentTime && !(playedTimes[entryKey] ?? false)) {
       playedTimes[entryKey] = true;
-
+      print(
+        'Аудио башталды: $entryAudio, убакыт: $entryTime, ачкыч: $entryKey',
+      );
       await BellPlayer.playBell(
         entryAudio,
         entryKey,
+        rowIndex,
+        2,
         () {
-          updateIcon(2, AppIcons.notes);
+          final startTime = DateTime.now();
+          print(
+            'Кирүү аудиосу башталды: row $rowIndex, col 2, type $providerType, убакыт: $startTime',
+          );
         },
         () {
-          updateIcon(2, AppIcons.rectangle);
+          final endTime = DateTime.now();
+          print(
+            'Кирүү аудиосу аяктады: row $rowIndex, col 2, type $providerType, убакыт: $endTime',
+          );
         },
-        updateIcon,
+        (int columnIndex, dynamic value) {},
       );
-    } else if (entryTime == currentTime) {
-      final currentPlaying = ref.read(currentPlayingProvider);
-      if (currentPlaying != null &&
-          currentPlaying['row'] == rowIndex &&
-          currentPlaying['col'] == 2 &&
-          currentPlaying['type'] == providerType) {
-        updateIcon(2, AppIcons.notes);
-      } else {
-        updateIcon(2, AppIcons.rectangle);
-      }
     }
 
     if (exitTime == currentTime && !(playedTimes[exitKey] ?? false)) {
       playedTimes[exitKey] = true;
+      print('Аудио башталды: $exitAudio, убакыт: $exitTime, ачкыч: $exitKey');
       await BellPlayer.playBell(
         exitAudio,
         exitKey,
+        rowIndex,
+        4,
         () {
-          updateIcon(4, AppIcons.notes);
+          final startTime = DateTime.now();
+          print(
+            'Чыгуу аудиосу башталды: row $rowIndex, col 4, type $providerType, убакыт: $startTime',
+          );
         },
         () {
-          updateIcon(4, AppIcons.rectangle);
+          final endTime = DateTime.now();
+          print(
+            'Чыгуу аудиосу аяктады: row $rowIndex, col 4, type $providerType, убакыт: $endTime',
+          );
         },
-        updateIcon,
+        (int columnIndex, dynamic value) {},
       );
-    } else if (exitTime == currentTime) {
-      final currentPlaying = ref.read(currentPlayingProvider);
-      if (currentPlaying != null &&
-          currentPlaying['row'] == rowIndex &&
-          currentPlaying['col'] == 4 &&
-          currentPlaying['type'] == providerType) {
-        updateIcon(4, AppIcons.notes);
-      } else {
-        updateIcon(4, AppIcons.rectangle);
-      }
     }
   }
 }

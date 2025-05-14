@@ -152,7 +152,6 @@ class ScheduleScreen extends ConsumerWidget {
     return Column(
       children: [
         Text(title, style: AppTextStyle.size20bold),
-
         const SizedBox(height: 10),
         LayoutBuilder(
           builder: (context, constraints) {
@@ -238,8 +237,6 @@ class ScheduleScreen extends ConsumerWidget {
     List<List<String>> schedule,
     StateNotifierProvider<ScheduleNotifier, List<List<String>>> provider,
   ) {
-    final providerType =
-        provider == morningScheduleProvider ? 'morning' : 'afternoon';
     return List.generate(schedule.length, (rowIndex) {
       return DataRow(
         cells: List.generate(schedule[rowIndex].length, (columnIndex) {
@@ -275,29 +272,10 @@ class ScheduleScreen extends ConsumerWidget {
               child: Center(
                 child:
                     columnIndex == 2 || columnIndex == 4
-                        ? Consumer(
-                          builder: (context, ref, _) {
-                            final currentPlaying = ref.watch(
-                              currentPlayingProvider,
-                            );
-                            final isCurrentCellPlaying =
-                                currentPlaying != null &&
-                                currentPlaying['row'] == rowIndex &&
-                                currentPlaying['col'] == columnIndex &&
-                                currentPlaying['type'] == providerType;
-
-                            return isCurrentCellPlaying
-                                ? const AppIcon(
-                                  AppIcons.rectangle,
-                                  size: 16,
-                                  color: Colors.yellow,
-                                )
-                                : const AppIcon(
-                                  AppIcons.notes,
-                                  size: 16,
-                                  color: Colors.pink,
-                                );
-                          },
+                        ? const AppIcon(
+                          AppIcons.notes,
+                          size: 16,
+                          color: Colors.pink,
                         )
                         : Text(
                           schedule[rowIndex][columnIndex].isEmpty

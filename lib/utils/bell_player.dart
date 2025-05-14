@@ -1,6 +1,5 @@
 import 'package:just_audio/just_audio.dart';
 import '../providers/audiofiles.dart';
-import '../ui/widgets/app_icons.dart';
 
 class BellPlayer {
   static final Map<String, AudioPlayer> _players = {};
@@ -8,9 +7,11 @@ class BellPlayer {
   static Future<void> playBell(
     String audioPath,
     String bellId,
+    int rowIndex,
+    int columnIndex,
     Function onStart,
     Function onComplete,
-    Function updateIcon,
+    Function(int, dynamic) updateIcon,
   ) async {
     if (audioPath.isEmpty ||
         audioPath == '🔔' ||
@@ -34,10 +35,8 @@ class BellPlayer {
       player.playerStateStream.listen((playerState) {
         if (playerState.playing) {
           onStart();
-          updateIcon(AppIcons.notes);
         } else if (playerState.processingState == ProcessingState.completed) {
           onComplete();
-          updateIcon(AppIcons.rectangle);
           _disposePlayer(bellId);
         }
       });
@@ -45,7 +44,6 @@ class BellPlayer {
       await player.play();
     } catch (e) {
       onComplete();
-      updateIcon(AppIcons.rectangle);
       _disposePlayer(bellId);
     }
   }
