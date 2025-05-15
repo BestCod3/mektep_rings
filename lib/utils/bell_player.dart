@@ -27,7 +27,6 @@ class BellPlayer {
     }
 
     final player = AudioPlayer();
-    _players[bellId] = player;
 
     try {
       await player.setAsset(audioPath);
