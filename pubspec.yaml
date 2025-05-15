@@ -29,6 +29,7 @@ flutter:
   assets:
     - assets/images/
     - assets/svg/
+    - assets/audio/default_lesson.mp3
     - assets/audio/first_lesson.mp3
     - assets/audio/second_lesson.mp3
     - assets/audio/third_lesson.mp3

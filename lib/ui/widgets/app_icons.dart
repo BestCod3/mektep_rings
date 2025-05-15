@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-enum AppIcons { logo, notes, rectangle }
+// ignore: constant_identifier_names
+enum AppIcons { logo, notes, rectangle, play_circle }
 
 class AppIcon extends StatelessWidget {
   final AppIcons icon;

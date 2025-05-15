@@ -2,21 +2,19 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:gap/gap.dart';
 import 'package:mektep_rings/theme/app_text_styles.dart';
 import 'package:mektep_rings/ui/widgets/app_icons.dart';
 import 'package:mektep_rings/utils/check_bell.dart';
 import '../../providers/audio_providers.dart';
 import '../../utils/edit_cell.dart';
 import '../../diologs/audio_selection_diolog.dart';
+import '../widgets/app_itc_logo.dart';
+import '../widgets/default_audio.dart';
+import '../widgets/header_widget.dart';
 
 class ScheduleScreen extends ConsumerWidget {
   const ScheduleScreen({super.key});
-
-  String _getCurrentDate() {
-    final now = DateTime.now();
-    return '${now.day.toString().padLeft(2, '0')}.${now.month.toString().padLeft(2, '0')}.${now.year}';
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -73,7 +71,7 @@ class ScheduleScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                _buildHeader(context),
+                HeadarWidget(),
                 const SizedBox(height: 30),
                 _buildScheduleTable(
                   context,
@@ -90,55 +88,14 @@ class ScheduleScreen extends ConsumerWidget {
                   afternoonScheduleProvider,
                   'Түштөн кийинки сабактар',
                 ),
-                Align(
-                  alignment: Alignment.bottomRight,
-                  heightFactor: 0,
-                  widthFactor: 16,
-                  child: Column(
-                    spacing: 4,
-                    children: [
-                      SizedBox(
-                        height: 30,
-                        child: Image.asset('assets/images/app_itc.png'),
-                      ),
-                      Text(
-                        'Турат Алыбаев',
-                        style: GoogleFonts.lora(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                AppItcLogo(),
+                Gap(10),
+                DefaultAudio(),
               ],
             ),
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildHeader(BuildContext context) {
-    return Row(
-      spacing: 10,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Image.asset('assets/images/logo.png', height: 50),
-        const SizedBox(width: 10),
-        Text('АКЫЛДУУ КОҢГУРОО', style: AppTextStyle.size40),
-        const SizedBox(width: 10),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Text(
-              'А. Сулайманов атындагы орто мектеби',
-              style: AppTextStyle.size16W600,
-            ),
-            Text(_getCurrentDate(), style: AppTextStyle.size16W600),
-          ],
-        ),
-      ],
     );
   }
 
@@ -165,7 +122,7 @@ class ScheduleScreen extends ConsumerWidget {
                 child: DataTable(
                   border: TableBorder.all(color: Colors.green, width: 1),
                   columnSpacing: columnSpacing,
-                  headingRowHeight: 70,
+                  headingRowHeight: 60,
                   dataRowHeight: 40,
                   columns: _buildColumnsAfter(screenWidth),
                   rows: _buildRows(context, ref, schedule, provider),
