@@ -1,6 +1,6 @@
 name: mektep_rings
 description: "A new Flutter project."
-publish_to: 'none'
+publish_to: "none"
 version: 1.0.0+1
 
 environment:
@@ -15,7 +15,9 @@ dependencies:
   flutter_svg: ^2.1.0
   gap: ^3.0.1
   intl: ^0.20.2
-  just_audio: ^0.10.2
+  # just_audio: ^0.10.2
+  audioplayers: ^6.4.0
+  just_audio_windows: ^0.2.2
   shared_preferences: ^2.5.3
   google_fonts: ^6.2.1
 
@@ -38,4 +40,3 @@ flutter:
     - assets/audio/sixth_lesson.mp3
     - assets/audio/exit_lesson.mp3
     - assets/audio/exit_last_lesson.mp3
-
