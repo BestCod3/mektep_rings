@@ -16,6 +16,7 @@ dependencies:
   gap: ^3.0.1
   intl: ^0.20.2
   # just_audio: ^0.10.2
+  file_picker: ^10.1.9
   audioplayers: ^6.4.0
   just_audio_windows: ^0.2.2
   shared_preferences: ^2.5.3

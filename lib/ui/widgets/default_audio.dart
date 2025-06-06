@@ -45,6 +45,8 @@
 //     );
 //   }
 // }
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
@@ -56,12 +58,19 @@ import '../../theme/app_text_styles.dart';
 
 class DefaultAudio extends ConsumerWidget {
   const DefaultAudio({super.key});
-
   Future<void> playAudio(WidgetRef ref, String path) async {
     try {
       final audioPlayer = ref.read(audioPlayerProvider);
       await audioPlayer.stop();
-      await audioPlayer.play(AssetSource(path)); // путь без assets/
+
+      if (Platform.isWindows) {
+        final uri = Uri.file(path);
+        await audioPlayer.play(UrlSource(uri.toString()));
+      } else if (path.startsWith('/')) {
+        await audioPlayer.play(DeviceFileSource(path));
+      } else {
+        await audioPlayer.play(AssetSource(path)); // для файлов в assets
+      }
     } catch (e) {
       print("Ката: $e");
     }
