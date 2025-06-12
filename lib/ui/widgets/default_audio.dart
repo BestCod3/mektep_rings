@@ -44,9 +44,7 @@
 //       ],
 //     );
 //   }
-// }
-import 'dart:io';
-
+// }import 'package:flutter/material.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
@@ -58,19 +56,12 @@ import '../../theme/app_text_styles.dart';
 
 class DefaultAudio extends ConsumerWidget {
   const DefaultAudio({super.key});
+
   Future<void> playAudio(WidgetRef ref, String path) async {
     try {
       final audioPlayer = ref.read(audioPlayerProvider);
       await audioPlayer.stop();
-
-      if (Platform.isWindows) {
-        final uri = Uri.file(path);
-        await audioPlayer.play(UrlSource(uri.toString()));
-      } else if (path.startsWith('/')) {
-        await audioPlayer.play(DeviceFileSource(path));
-      } else {
-        await audioPlayer.play(AssetSource(path)); // для файлов в assets
-      }
+      await audioPlayer.play(AssetSource(path)); // путь без "assets/"
     } catch (e) {
       print("Ката: $e");
     }
@@ -83,7 +74,7 @@ class DefaultAudio extends ConsumerWidget {
       children: [
         IconButton(
           onPressed: () {
-            playAudio(ref, 'audio/default_lesson.mp3'); //  правильный
+            playAudio(ref, 'audio/default_lesson.mp3'); // ✅ путь правильный
           },
           icon: const AppIcon(AppIcons.play_circle),
           alignment: Alignment.bottomLeft,
@@ -92,7 +83,7 @@ class DefaultAudio extends ConsumerWidget {
         const Gap(10),
         IconButton(
           onPressed: () {
-            playAudio(ref, 'audio/exit_lesson.mp3'); // правильный
+            playAudio(ref, 'audio/exit_lesson.mp3'); // ✅ путь правильный
           },
           icon: const AppIcon(AppIcons.play_circle),
         ),
