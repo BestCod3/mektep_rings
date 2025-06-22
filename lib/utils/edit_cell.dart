@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart'
-    show StateNotifierProvider, WidgetRef;
+    show StateNotifierProvider, StateProvider, WidgetRef;
 import 'package:mektep_rings/providers/audio_providers.dart';
 import '../diologs/edit_shedule_diolog.dart';
 import '../ui/widgets/calculate_exit_time.dart';
+
+// Предполагается, что ты объявил где-то
+final lastDayProvider = StateProvider<int?>((ref) => null);
 
 Future<void> editCell(
   int rowIndex,
@@ -26,8 +29,7 @@ Future<void> editCell(
       ref.read(provider.notifier).updateCell(rowIndex, 3, exitTime);
     }
     await ref.read(provider.notifier).saveSchedule();
-    ref.read(playedTimesProvider.notifier).state = {
-      'lastDay': DateTime.now().day,
-    };
+    // Вместо обновления playedTimesProvider - обновляем lastDayProvider
+    ref.read(lastDayProvider.notifier).state = DateTime.now().day;
   }
 }

@@ -1,118 +1,46 @@
-// import 'package:just_audio/just_audio.dart';
-// import '../providers/audiofiles.dart';
-
-// class BellPlayer {
-//   static final Map<String, AudioPlayer> _players = {};
-
-//   static Future<void> playBell(
-//     String audioPath,
-//     String bellId,
-//     int rowIndex,
-//     int columnIndex,
-//     Function onStart,
-//     Function onComplete,
-//     Function(int, dynamic) updateIcon,
-//   ) async {
-//     if (audioPath.isEmpty ||
-//         audioPath == '🔔' ||
-//         !audioFiles.contains(audioPath)) {
-//       onComplete();
-//       return;
-//     }
-
-//     if (_players.containsKey(bellId)) {
-//       await _players[bellId]!.stop();
-//       await _players[bellId]!.dispose();
-//       _players.remove(bellId);
-//     }
-
-//     final player = AudioPlayer();
-//     _players[bellId] = player;
-
-//     try {
-//       await player.setAsset(audioPath);
-
-//       player.playerStateStream.listen((playerState) {
-//         if (playerState.playing) {
-//           onStart();
-//         } else if (playerState.processingState == ProcessingState.completed) {
-//           onComplete();
-//           _disposePlayer(bellId);
-//         }
-//       });
-
-//       await player.play();
-//     } catch (e) {
-//       onComplete();
-//       _disposePlayer(bellId);
-//     }
-//   }
-
-//   static void _disposePlayer(String bellId) {
-//     if (_players.containsKey(bellId)) {
-//       _players[bellId]!.stop();
-//       _players[bellId]!.dispose();
-//       _players.remove(bellId);
-//     }
-//   }
-// }import 'package:audioplayers/audioplayers.dart';
+import 'dart:async';
+import 'dart:io';
 import 'package:audioplayers/audioplayers.dart';
-
-import '../providers/audiofiles.dart';
+import 'package:flutter/foundation.dart';
 
 class BellPlayer {
-  static final Map<String, AudioPlayer> _players = {};
+  static final AudioPlayer _player = AudioPlayer();
+  static StreamSubscription? _completionSubscription;
 
   static Future<void> playBell(
-    String audioPath,
-    String bellId,
+    String path,
+    String key,
     int rowIndex,
     int columnIndex,
-    Function onStart,
-    Function onComplete,
-    Function(int, dynamic) updateIcon,
+    VoidCallback onStart,
+    VoidCallback onComplete,
+    Function(int columnIndex, dynamic value) onError,
   ) async {
-    if (audioPath.isEmpty ||
-        audioPath == '🔔' ||
-        !audioFiles.contains(audioPath)) {
-      onComplete();
-      return;
-    }
-
-    // Остановим и удалим старый плеер, если он есть
-    if (_players.containsKey(bellId)) {
-      await _players[bellId]!.stop();
-      await _players[bellId]!.dispose();
-      _players.remove(bellId);
-    }
-
-    final player = AudioPlayer();
-    _players[bellId] = player;
-
-    player.onPlayerStateChanged.listen((state) {
-      if (state == PlayerState.playing) {
-        onStart();
-      }
-    });
-
-    player.onPlayerComplete.listen((event) {
-      onComplete();
-      _disposePlayer(bellId);
-    });
-
     try {
-      await player.play(AssetSource(audioPath));
-    } catch (e) {
-      onComplete();
-      _disposePlayer(bellId);
-    }
-  }
+      // Остановить и сбросить до воспроизведения
+      await _player.stop();
+      await _completionSubscription?.cancel();
+      _completionSubscription = null;
 
-  static void _disposePlayer(String bellId) {
-    if (_players.containsKey(bellId)) {
-      _players[bellId]!.stop();
-      _players[bellId]!.dispose();
-      _players.remove(bellId);
+      onStart();
+
+      Source source;
+      if (path.startsWith('audio/')) {
+        source = AssetSource(path);
+      } else if (path.contains(':') || File(path).existsSync()) {
+        source = DeviceFileSource(path);
+      } else {
+        throw Exception('Invalid audio path: $path');
+      }
+
+      await _player.play(source);
+
+      _completionSubscription = _player.onPlayerComplete.listen((event) {
+        onComplete();
+      });
+    } catch (e) {
+      print('Error playing audio: $e');
+      onError(columnIndex, e);
     }
   }
 }
